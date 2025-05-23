@@ -56,3 +56,8 @@ yarn-error.log
 *.sublime-workspace
 *.idea/
 *.vs/
+
+#lock files
+package-lock.json
+yarn.lock
+*.lock
