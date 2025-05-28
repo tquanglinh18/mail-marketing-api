@@ -1,1 +1,0 @@
-# mail-marketing-api

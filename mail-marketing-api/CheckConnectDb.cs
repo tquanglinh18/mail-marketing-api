@@ -8,7 +8,7 @@ public class CheckConnectDb
 
     public CheckConnectDb(IConfiguration config)
     {
-        _connectionString = config.GetConnectionString("DefaultConnection");
+        _connectionString = config.GetConnectionString("SqlServerInfo");
     }
 
     public void TestConnection()

@@ -41,7 +41,7 @@ namespace mail_marketing_api.Controllers
 
                     return Ok(new
                     {
-                        Message = "Tải file lên thành công!",
+                        Message = $"Tải file: {file.FileName} lên thành công!",
                         FileUrl = fileUrl,
                         Key = key,
                         Success = true
@@ -50,7 +50,7 @@ namespace mail_marketing_api.Controllers
 
                 return StatusCode(500, new
                 {
-                    Message = "Tải file lên thất bại.",
+                    Message = $"Tải file {file.FileName} lên thất bại.",
                     Success = false
                 });
             }

@@ -28,7 +28,7 @@ namespace mail_marketing_api.Data
                 {
                     TemplateId = 1,
                     TemplateName = "Mẫu Chào Mừng Thành Viên Mới",
-                    HtmlContent = "<h1>Chào mừng [TenNguoiNhan]!</h1><p>Cảm ơn bạn đã đăng ký dịch vụ của chúng tôi.</p>",
+                    HtmlContent = "<h1>Chào mừng -TenNguoiNhan-!</h1><p>Cảm ơn bạn đã đăng ký dịch vụ của chúng tôi.</p>",
                     ImageStorageType = "None",
                     CreatedDate = new DateTime(2025, 5, 20, 10, 0, 0, DateTimeKind.Utc),
                     CreatedBy = "Admin"
@@ -37,7 +37,7 @@ namespace mail_marketing_api.Data
                 {
                     TemplateId = 2,
                     TemplateName = "Mẫu Tin Tức Tháng 5",
-                    HtmlContent = "<h1>Bản tin Tháng 5</h1><p>Các cập nhật mới nhất...</p>",
+                    HtmlContent = "<h1>Kính gửi -TenNguoiNhan-,</h1><p>Cảm ơn bạn đã là một thành viên <b>-MembershipLevel-</b> tại thành phố <b>-ThanhPho-</b>!</p><p>Chúng tôi vui mừng thông báo chương trình khuyến mãi <b>-CampaignName-</b>.Hãy sử dụng mã <b>-DiscountCode-</b> để nhận ưu đãi đặc biệt.</p><p>Ưu đãi này chỉ dành riêng cho bạn tại địa chỉ email: -Email-.</p><p>Trân trọng,<br>\nĐội ngũ Marketing</p></p>",
                     ImageStorageType = "None",
                     CreatedDate = new DateTime(2025, 5, 21, 11, 0, 0, DateTimeKind.Utc),
                     CreatedBy = "MarketingTeam"
@@ -70,17 +70,17 @@ namespace mail_marketing_api.Data
                 {
                     RecipientId = 1,
                     BatchId = 1, // <-- Liên kết Lô 1
-                    RecipientName = "Nguyễn Văn A",
-                    RecipientEmail = "nguyenvana@example.com",
-                    CustomDataJson = "{ \"TenNguoiNhan\": \"Văn A\", \"city\": \"Hanoi\" }"
+                    RecipientName = "Nguyễn Văn Linh",
+                    RecipientEmail = "linhtq.vtco@gmail.com",
+                    CustomDataJson = "{ \"TenNguoiNhan\": \"Văn Linh\", \"city\": \"Hanoi\" }"
                 },
                 new EmailRecipient // Người nhận 2 (thuộc Lô 1)
                 {
                     RecipientId = 2,
                     BatchId = 1, // <-- Liên kết Lô 1
-                    RecipientName = "Trần Thị B",
-                    RecipientEmail = "tranthib@example.com",
-                    CustomDataJson = "{ \"TenNguoiNhan\": \"Thị B\", \"city\": \"HCM\" }"
+                    RecipientName = "Trần Thị Linh",
+                    RecipientEmail = "tquanglinh18@gmail.com",
+                    CustomDataJson = "{ \"TenNguoiNhan\": \"Thị Linh\", \"city\": \"HCM\" }"
                 },
                 new EmailRecipient // Người nhận 3 (thuộc Lô 2)
                 {

@@ -1,16 +1,17 @@
 ﻿using mail_marketing_api.Data;
 using mail_marketing_api.Models;
+using mail_marketing_api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("[controller]/[action]")]
 public class TemplateController : ControllerBase
 {
-    private readonly AppDbContext _appDbContext;
+    private readonly ITemplateService _templateService;
 
-    public TemplateController(AppDbContext appDbContext)
+    public TemplateController(ITemplateService templateService)
     {
-        _appDbContext = appDbContext;
+        _templateService = templateService;
     }
 
     [HttpPost]
@@ -18,23 +19,21 @@ public class TemplateController : ControllerBase
     {
         try
         {
-            _appDbContext.EmailTemplates.Add(emailTemplate);
-            _appDbContext.SaveChanges();
-
+            var result = _templateService.CreateTemplate(emailTemplate);
             return Ok(new ResponseDTO<EmailTemplate>
             {
                 Code = 201,
-                Data = emailTemplate,
+                Data = result,
                 Message = "Tạo template thành công!",
                 IsSuccessed = true
             });
         }
         catch (Exception ex)
         {
-            return BadRequest(new ResponseDTO<string>
+            return BadRequest(new ResponseDTO<EmailTemplate>
             {
                 Code = 500,
-                Data = null,
+                Data = new EmailTemplate(),
                 Message = "Lỗi khi tạo template: " + ex.Message,
                 IsSuccessed = false
             });
@@ -42,10 +41,9 @@ public class TemplateController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAllTemplates()
+    public async Task<IActionResult> GetAllTemplatesAsync()
     {
-        var templates = _appDbContext.EmailTemplates.ToList();
-
+        var templates = await _templateService.GetAllTemplates();
         return Ok(new ResponseDTO<List<EmailTemplate>>
         {
             Code = 200,
@@ -56,17 +54,17 @@ public class TemplateController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetTemplateById(int id)
+    public async Task<IActionResult> GetTemplateById(int id)
     {
-        var template = _appDbContext.EmailTemplates.FirstOrDefault(t => t.TemplateId == id);
+        var template = await _templateService.GetTeamplateById(id);
 
         if (template == null)
         {
-            return NotFound(new ResponseDTO<string>
+            return NotFound(new ResponseDTO<EmailTemplate>
             {
                 Code = 404,
-                Data = null,
-                Message = "Không tìm thấy template!",
+                Data = new EmailTemplate(),
+                Message = $"Không tìm thấy template {id}!",
                 IsSuccessed = false
             });
         }
@@ -75,49 +73,33 @@ public class TemplateController : ControllerBase
         {
             Code = 200,
             Data = template,
-            Message = "Lấy template thành công!",
+            Message = $"Lấy template {id} thành công!",
             IsSuccessed = true
         });
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteTemplate(int id)
+    public async Task<IActionResult> DeleteTemplate(int id)
     {
-        var template = _appDbContext.EmailTemplates.FirstOrDefault(t => t.TemplateId == id);
+        var template = await _templateService.DeleteTemplate(id);
 
         if (template == null)
         {
-            return NotFound(new ResponseDTO<string>
+            return NotFound(new ResponseDTO<EmailTemplate>
             {
                 Code = 404,
-                Data = null,
-                Message = "Template không tồn tại!",
+                Data = new EmailTemplate(),
+                Message = $"Template {id} không tồn tại!",
                 IsSuccessed = false
             });
         }
 
-        try
+        return Ok(new ResponseDTO<EmailTemplate>
         {
-            _appDbContext.EmailTemplates.Remove(template);
-            _appDbContext.SaveChanges();
-
-            return Ok(new ResponseDTO<EmailTemplate>
-            {
-                Code = 200,
-                Data = template,
-                Message = "Xoá template thành công!",
-                IsSuccessed = true
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new ResponseDTO<string>
-            {
-                Code = 500,
-                Data = null,
-                Message = "Lỗi khi xoá template: " + ex.Message,
-                IsSuccessed = false
-            });
-        }
+            Code = 200,
+            Data = template,
+            Message = $"Xoá template {id} thành công!",
+            IsSuccessed = true
+        });
     }
 }

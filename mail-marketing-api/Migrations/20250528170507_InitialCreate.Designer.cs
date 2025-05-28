@@ -12,8 +12,8 @@ using mail_marketing_api.Data;
 namespace mail_marketing_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250527064621_AddDetailedSeedData")]
-    partial class AddDetailedSeedData
+    [Migration("20250528170507_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -209,7 +209,7 @@ namespace mail_marketing_api.Migrations
                             TemplateId = 1,
                             CreatedBy = "Admin",
                             CreatedDate = new DateTime(2025, 5, 20, 10, 0, 0, 0, DateTimeKind.Utc),
-                            HtmlContent = "<h1>Chào mừng [TenNguoiNhan]!</h1><p>Cảm ơn bạn đã đăng ký dịch vụ của chúng tôi.</p>",
+                            HtmlContent = "<h1>Chào mừng -TenNguoiNhan-!</h1><p>Cảm ơn bạn đã đăng ký dịch vụ của chúng tôi.</p>",
                             ImageStorageType = "None",
                             TemplateName = "Mẫu Chào Mừng Thành Viên Mới"
                         },
