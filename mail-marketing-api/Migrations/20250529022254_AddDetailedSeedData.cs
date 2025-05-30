@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace mail_marketing_api.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class AddDetailedSeedData : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -99,7 +99,7 @@ namespace mail_marketing_api.Migrations
                 values: new object[,]
                 {
                     { 1, "Admin", new DateTime(2025, 5, 20, 10, 0, 0, 0, DateTimeKind.Utc), "<h1>Chào mừng -TenNguoiNhan-!</h1><p>Cảm ơn bạn đã đăng ký dịch vụ của chúng tôi.</p>", "None", "Mẫu Chào Mừng Thành Viên Mới" },
-                    { 2, "MarketingTeam", new DateTime(2025, 5, 21, 11, 0, 0, 0, DateTimeKind.Utc), "<h1>Bản tin Tháng 5</h1><p>Các cập nhật mới nhất...</p>", "None", "Mẫu Tin Tức Tháng 5" }
+                    { 2, "MarketingTeam", new DateTime(2025, 5, 21, 11, 0, 0, 0, DateTimeKind.Utc), "<h1>Kính gửi -TenNguoiNhan-,</h1><p>Cảm ơn bạn đã là một thành viên <b>-MembershipLevel-</b> tại thành phố <b>-ThanhPho-</b>!</p><p>Chúng tôi vui mừng thông báo chương trình khuyến mãi <b>-CampaignName-</b>.Hãy sử dụng mã <b>-DiscountCode-</b> để nhận ưu đãi đặc biệt.</p><p>Ưu đãi này chỉ dành riêng cho bạn tại địa chỉ email: -Email-.</p><p>Trân trọng,<br>\nĐội ngũ Marketing</p></p>", "None", "Mẫu Tin Tức Tháng 5" }
                 });
 
             migrationBuilder.InsertData(
@@ -116,8 +116,8 @@ namespace mail_marketing_api.Migrations
                 columns: new[] { "RecipientId", "BatchId", "CustomDataJson", "RecipientEmail", "RecipientName" },
                 values: new object[,]
                 {
-                    { 1, 1, "{ \"TenNguoiNhan\": \"Văn A\", \"city\": \"Hanoi\" }", "nguyenvana@example.com", "Nguyễn Văn A" },
-                    { 2, 1, "{ \"TenNguoiNhan\": \"Thị B\", \"city\": \"HCM\" }", "tranthib@example.com", "Trần Thị B" },
+                    { 1, 1, "{ \"TenNguoiNhan\": \"Văn Linh\", \"city\": \"Hanoi\" }", "linhtq.vtco@gmail.com", "Nguyễn Văn Linh" },
+                    { 2, 1, "{ \"TenNguoiNhan\": \"Thị Linh\", \"city\": \"HCM\" }", "tquanglinh18@gmail.com", "Trần Thị Linh" },
                     { 3, 2, "{ \"TenNguoiNhan\": \"Văn C\", \"company\": \"ABC Corp\" }", "levanc@example.com", "Lê Văn C" },
                     { 4, 2, "{ \"TenNguoiNhan\": \"Thị D\", \"company\": \"XYZ Ltd\" }", "phamthid@example.com", "Phạm Thị D" }
                 });

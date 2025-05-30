@@ -16,6 +16,29 @@ namespace mail_marketing_api.Services
             _appDbContext = appDbContext;
         }
 
+        public async Task<List<EmailRecipient>> GetAllRecipients()
+        {
+            var lstContact = await _appDbContext.EmailRecipients.Include(recipient => recipient.UploadBatch).ToListAsync();
+            return lstContact;
+        }
+
+        public async Task<EmailRecipient> GetRecipientById(int id)
+        {
+            var contact = await _appDbContext
+                .EmailRecipients.Include(recipient => recipient.UploadBatch).FirstOrDefaultAsync(c => c.RecipientId == id);
+            if (contact == null) return null;
+            return contact;
+        }
+
+        public async Task<List<EmailRecipient>> SearchByKeyword(string keyword)
+        {
+            var results = await _appDbContext.EmailRecipients
+                .Where(r => r.RecipientEmail.Contains(keyword) || r.RecipientName.Contains(keyword))
+                .ToListAsync();
+
+            return results;
+        }
+
         public async Task<bool> AddEmailRecipientsAsync(List<EmailRecipient> recipients)
         {
             if (recipients == null || !recipients.Any())

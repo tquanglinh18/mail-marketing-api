@@ -33,10 +33,9 @@ namespace mail_marketing_api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendBulkMail([FromBody] SendMailRequest request)
+        public async Task<IActionResult> SendGridMail([FromBody] SendMailRequest request)
         {
             // --- 1. Lấy Template ---
-            // Giả sử GetTeamplateById là sync, nếu là async cần await
             var template = await _templateService.GetTeamplateById(request.TemplateId);
             if (template == null)
             {
@@ -60,8 +59,8 @@ namespace mail_marketing_api.Controllers
             }
 
             // --- 3. Lấy thông tin người gửi từ Config ---
-            var fromEmail = _configuration["SendGrid:FromEmail"] ?? "noreply@yourdomain.com"; // Lấy From Email từ config
-            var fromName = _configuration["SendGrid:FromName"] ?? "Your Company"; // Lấy From Name từ config
+            var fromEmail = _configuration["SendGrid:FromEmail"] ?? "noreply@linhtq.com";
+            var fromName = _configuration["SendGrid:FromName"] ?? "LinhTQ";
 
             // --- 4. Xây dựng danh sách SendGridRecipient ---
             var sendGridRecipients = new List<SendGridRecipient>();
@@ -114,16 +113,15 @@ namespace mail_marketing_api.Controllers
             var sendGridResponse = await _sendGridService.SendBatchEmailAsync(
                 fromEmail,
                 fromName,
-                request.CustomSubject ?? template.TemplateName, // Lấy subject
+                request.CustomSubject ?? template.TemplateName,
                 template.HtmlContent, // Lấy HTML
-                null, // Bỏ qua TextBody nếu không có
-                sendGridRecipients // Danh sách người nhận đã xử lý
+                null,
+                sendGridRecipients
             );
 
             // --- 6. Xử lý Phản hồi & Ghi Log (Tạm thời) ---
             if (sendGridResponse.IsSuccessed)
             {
-                // **TODO:** Triển khai IEmailLogService để ghi log thành công vào DB
                 Console.WriteLine($"SendGrid Success: {sendGridResponse.Message}");
                 return Ok(sendGridResponse);
             }

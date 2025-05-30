@@ -12,8 +12,8 @@ using mail_marketing_api.Data;
 namespace mail_marketing_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250528170507_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250529022254_AddDetailedSeedData")]
+    partial class AddDetailedSeedData
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -133,17 +133,17 @@ namespace mail_marketing_api.Migrations
                         {
                             RecipientId = 1,
                             BatchId = 1,
-                            CustomDataJson = "{ \"TenNguoiNhan\": \"Văn A\", \"city\": \"Hanoi\" }",
-                            RecipientEmail = "nguyenvana@example.com",
-                            RecipientName = "Nguyễn Văn A"
+                            CustomDataJson = "{ \"TenNguoiNhan\": \"Văn Linh\", \"city\": \"Hanoi\" }",
+                            RecipientEmail = "linhtq.vtco@gmail.com",
+                            RecipientName = "Nguyễn Văn Linh"
                         },
                         new
                         {
                             RecipientId = 2,
                             BatchId = 1,
-                            CustomDataJson = "{ \"TenNguoiNhan\": \"Thị B\", \"city\": \"HCM\" }",
-                            RecipientEmail = "tranthib@example.com",
-                            RecipientName = "Trần Thị B"
+                            CustomDataJson = "{ \"TenNguoiNhan\": \"Thị Linh\", \"city\": \"HCM\" }",
+                            RecipientEmail = "tquanglinh18@gmail.com",
+                            RecipientName = "Trần Thị Linh"
                         },
                         new
                         {
@@ -218,7 +218,7 @@ namespace mail_marketing_api.Migrations
                             TemplateId = 2,
                             CreatedBy = "MarketingTeam",
                             CreatedDate = new DateTime(2025, 5, 21, 11, 0, 0, 0, DateTimeKind.Utc),
-                            HtmlContent = "<h1>Bản tin Tháng 5</h1><p>Các cập nhật mới nhất...</p>",
+                            HtmlContent = "<h1>Kính gửi -TenNguoiNhan-,</h1><p>Cảm ơn bạn đã là một thành viên <b>-MembershipLevel-</b> tại thành phố <b>-ThanhPho-</b>!</p><p>Chúng tôi vui mừng thông báo chương trình khuyến mãi <b>-CampaignName-</b>.Hãy sử dụng mã <b>-DiscountCode-</b> để nhận ưu đãi đặc biệt.</p><p>Ưu đãi này chỉ dành riêng cho bạn tại địa chỉ email: -Email-.</p><p>Trân trọng,<br>\nĐội ngũ Marketing</p></p>",
                             ImageStorageType = "None",
                             TemplateName = "Mẫu Tin Tức Tháng 5"
                         });
@@ -300,12 +300,17 @@ namespace mail_marketing_api.Migrations
             modelBuilder.Entity("mail_marketing_api.Models.EmailRecipient", b =>
                 {
                     b.HasOne("mail_marketing_api.Models.UploadBatch", "UploadBatch")
-                        .WithMany()
+                        .WithMany("EmailRecipients")
                         .HasForeignKey("BatchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UploadBatch");
+                });
+
+            modelBuilder.Entity("mail_marketing_api.Models.UploadBatch", b =>
+                {
+                    b.Navigation("EmailRecipients");
                 });
 #pragma warning restore 612, 618
         }

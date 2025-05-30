@@ -38,7 +38,6 @@ builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddScoped<IS3Service, S3Service>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
-builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IUploadBatchService, UploadBatchService>();
 builder.Services.AddScoped<IEmailRecipientService, EmailRecipientService>();
 builder.Services.AddScoped<ISendGridService, SendGridService>();

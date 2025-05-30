@@ -8,32 +8,30 @@ using OfficeOpenXml;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class ContactController : ControllerBase
+public class RecipientController : ControllerBase
 {
-    private readonly IContactService _contactService;
     private readonly IUploadBatchService _updateBatchService;
     private readonly IEmailRecipientService _emailRecipientService;
 
-    public ContactController(IContactService contactService,
+    public RecipientController(
         IUploadBatchService updateBatchService,
         IEmailRecipientService emailRecipientService)
     {
-        _contactService = contactService;
         _updateBatchService = updateBatchService;
         _emailRecipientService = emailRecipientService;
     }
 
     [HttpGet]
-    public  IActionResult GetAllContacts()
+    public async Task<IActionResult> GetAllRecipients()
     {
         try
         {
-            var contacts =  _contactService.GetAllContacts();
+            var recipients = await _emailRecipientService.GetAllRecipients();
 
             return Ok(new ResponseDTO<List<EmailRecipient>>
             {
                 Code = 200,
-                Data = contacts,
+                Data = recipients,
                 Message = "Thành công!",
                 IsSuccessed = true
             });
@@ -51,9 +49,9 @@ public class ContactController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetContactById(int id)
+    public async Task<IActionResult> GetContactById(int id)
     {
-        var contact = _contactService.GetContactById(id);
+        var contact = await _emailRecipientService.GetRecipientById(id);
 
         if (contact == null)
         {
@@ -75,18 +73,29 @@ public class ContactController : ControllerBase
         });
     }
 
-    [HttpGet("search")]
-    public IActionResult SearchByKeyword([FromQuery] string keyword)
+    [HttpGet]
+    public async Task<IActionResult> SearchByKeyword([FromQuery] string keyword)
     {
         try
         {
-            var results = _contactService.SearchByKeyword(keyword);
+            var results = await _emailRecipientService.SearchByKeyword(keyword);
 
-            return Ok(new ResponseDTO<List<EmailRecipient>>
+            if (results.Any())
+            {
+                return Ok(new ResponseDTO<List<EmailRecipient>>
+                {
+                    Code = 200,
+                    Data = results,
+                    Message = "Tìm kiếm thành công!",
+                    IsSuccessed = true
+                });
+            }
+
+            return Ok(new ResponseDTO<object>
             {
                 Code = 200,
-                Data = results,
-                Message = "Tìm kiếm thành công!",
+                Data = { },
+                Message = "Không tìm thấy đối tượng nào!",
                 IsSuccessed = true
             });
         }
@@ -104,7 +113,7 @@ public class ContactController : ControllerBase
 
     [HttpPost]
     [RequestSizeLimit(100_000_000)]
-    public async Task<IActionResult> UploadContactsExcel(IFormFile file, [FromForm] string batchName)
+    public async Task<IActionResult> UploadRecipientsFromExcel(IFormFile file, [FromForm] string batchName)
     {
         if (file == null || file.Length == 0)
         {
@@ -126,7 +135,7 @@ public class ContactController : ControllerBase
             uploadBatch = await _updateBatchService.CreateUploadBatchAsync(
                 batchName,
                 file.FileName,
-                "CurrentUser" // **TODO:** Lấy user thật
+                "CurrentUser"
             );
 
             // --- Đọc Excel (Giữ nguyên logic đọc) ---
@@ -169,7 +178,7 @@ public class ContactController : ControllerBase
 
                     recipients.Add(new EmailRecipient
                     {
-                        BatchId = uploadBatch.BatchId, // Sử dụng BatchId đã tạo
+                        BatchId = uploadBatch.BatchId,
                         RecipientEmail = email,
                         RecipientName = name ?? "",
                         CustomDataJson = JsonSerializer.Serialize(customData)
@@ -177,14 +186,12 @@ public class ContactController : ControllerBase
                 }
             }
 
-            // << Sử dụng IEmailRecipientService >>
             if (recipients.Any())
             {
                 bool success = await _emailRecipientService.AddEmailRecipientsAsync(recipients);
                 if (!success)
                 {
                     errors.Add("Lỗi khi lưu danh sách người nhận vào cơ sở dữ liệu.");
-                    // Cân nhắc xử lý thêm ở đây
                 }
             }
 
@@ -201,7 +208,7 @@ public class ContactController : ControllerBase
             return StatusCode(500, new ResponseDTO<UploadBatch>
             {
                 Message = "Lỗi nghiêm trọng khi xử lý file Excel: " + ex.Message,
-                Data = uploadBatch // Vẫn trả về batch nếu đã tạo được
+                Data = uploadBatch
             });
         }
     }
