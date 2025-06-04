@@ -11,6 +11,39 @@ public class S3Service : IS3Service
         _s3Client = s3Client;
     }
 
+    public async Task<List<S3Object>> ListFilesAsync(string bucketName)
+    {
+        var allS3Objects = new List<S3Object>();
+        try
+        {
+            var request = new ListObjectsV2Request
+            {
+                BucketName = bucketName
+            };
+
+            ListObjectsV2Response response;
+            do
+            {
+                response = await _s3Client.ListObjectsV2Async(request);
+                allS3Objects.AddRange(response.S3Objects);
+                request.ContinuationToken = response.NextContinuationToken;
+            } while (response.IsTruncated == true);
+
+            return allS3Objects;
+        }
+        catch (AmazonS3Exception e)
+        {
+            Console.WriteLine($"Error listing files from S3 bucket '{bucketName}': {e.Message}");
+            // Trả về danh sách rỗng hoặc ném lại lỗi tùy theo yêu cầu xử lý lỗi của bạn
+            return new List<S3Object>();
+        }
+        catch (Exception e) // Bắt cả các lỗi chung khác
+        {
+            Console.WriteLine($"An unexpected error occurred while listing files from S3 bucket '{bucketName}': {e.Message}");
+            return new List<S3Object>();
+        }
+    }
+
     public async Task<bool> UploadFileAsync(string bucketName, string key, Stream inputStream, string contentType)
     {
         try
@@ -18,7 +51,7 @@ public class S3Service : IS3Service
             var putRequest = new PutObjectRequest
             {
                 BucketName = bucketName,
-                Key = key, // Tên file trên S3
+                Key = key,
                 InputStream = inputStream,
                 ContentType = contentType,
             };

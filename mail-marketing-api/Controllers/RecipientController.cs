@@ -49,11 +49,11 @@ public class RecipientController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetContactById(int id)
+    public async Task<IActionResult> GetRecipientById(int id)
     {
-        var contact = await _emailRecipientService.GetRecipientById(id);
+        var rcipient = await _emailRecipientService.GetRecipientById(id);
 
-        if (contact == null)
+        if (rcipient == null)
         {
             return NotFound(new ResponseDTO<EmailRecipient>
             {
@@ -67,7 +67,7 @@ public class RecipientController : ControllerBase
         return Ok(new ResponseDTO<EmailRecipient>
         {
             Code = 200,
-            Data = contact,
+            Data = rcipient,
             Message = "Lấy liên hệ thành công!",
             IsSuccessed = true
         });
@@ -124,26 +124,25 @@ public class RecipientController : ControllerBase
             return BadRequest(new ResponseDTO<UploadBatch> { Message = "Tên lô không được để trống." });
         }
 
-        UploadBatch? uploadBatch = null; // Khởi tạo null
+        UploadBatch? uploadBatch = null;
         var recipients = new List<EmailRecipient>();
         var errors = new List<string>();
         int processedCount = 0;
 
         try
         {
-            // << Sử dụng IUploadBatchService >>
             uploadBatch = await _updateBatchService.CreateUploadBatchAsync(
                 batchName,
                 file.FileName,
-                "CurrentUser"
+                "Admin"
             );
 
-            // --- Đọc Excel (Giữ nguyên logic đọc) ---
+            // --- Đọc Excel =
             using (var stream = file.OpenReadStream())
             using (var package = new ExcelPackage(stream))
             {
                 var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                if (worksheet == null) { /* ... Xử lý lỗi ... */ return BadRequest(/*...*/); }
+                if (worksheet == null) {return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy Sheet nào!" }); }
 
                 int rowCount = worksheet.Dimension.End.Row;
                 int colCount = worksheet.Dimension.End.Column;
@@ -151,7 +150,7 @@ public class RecipientController : ControllerBase
                 for (int col = 1; col <= colCount; col++) { headers.Add(worksheet.Cells[1, col].Value?.ToString()?.Trim().ToLower() ?? $"column{col}"); }
                 int emailCol = headers.IndexOf("email") + 1;
                 int nameCol = headers.IndexOf("name") + 1;
-                if (emailCol == 0) { /* ... Xử lý lỗi ... */ return BadRequest(/*...*/); }
+                if (emailCol == 0) { return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy cột Email!" }); }
 
                 for (int row = 2; row <= rowCount; row++)
                 {
@@ -207,7 +206,7 @@ public class RecipientController : ControllerBase
         {
             return StatusCode(500, new ResponseDTO<UploadBatch>
             {
-                Message = "Lỗi nghiêm trọng khi xử lý file Excel: " + ex.Message,
+                Message = "Lỗi khi xử lý file Excel: " + ex.Message,
                 Data = uploadBatch
             });
         }
