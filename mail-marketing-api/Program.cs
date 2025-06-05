@@ -41,6 +41,7 @@ builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IUploadBatchService, UploadBatchService>();
 builder.Services.AddScoped<IEmailRecipientService, EmailRecipientService>();
 builder.Services.AddScoped<ISendGridService, SendGridService>();
+builder.Services.AddScoped<IMailgunService, MailgunService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

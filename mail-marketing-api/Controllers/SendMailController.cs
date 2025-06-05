@@ -92,7 +92,6 @@ namespace mail_marketing_api.Controllers
                         {
                             foreach (var field in custom)
                             {
-                                // Quan trọng: Key phải khớp với tag trong template (ví dụ: -ThanhPho-)
                                 sgRecipient.Substitutions[$"-{field.Key}-"] = field.Value;
                             }
                         }
@@ -103,7 +102,6 @@ namespace mail_marketing_api.Controllers
                 // Thêm các trường cơ bản (nếu template dùng chúng)
                 sgRecipient.Substitutions["-Name-"] = recipient.RecipientName ?? "";
                 sgRecipient.Substitutions["-Email-"] = recipient.RecipientEmail ?? "";
-                // Thêm bất kỳ key nào khác bạn dùng trong template
 
                 sendGridRecipients.Add(sgRecipient);
             }
@@ -114,7 +112,7 @@ namespace mail_marketing_api.Controllers
                 fromEmail,
                 fromName,
                 request.CustomSubject ?? template.TemplateName,
-                template.HtmlContent, // Lấy HTML
+                template.HtmlContent,
                 null,
                 sendGridRecipients
             );
@@ -127,7 +125,6 @@ namespace mail_marketing_api.Controllers
             }
             else
             {
-                // **TODO:** Triển khai IEmailLogService để ghi log thất bại vào DB
                 Console.WriteLine($"SendGrid Failed ({sendGridResponse.Code}): {sendGridResponse.Message}");
                 return StatusCode(sendGridResponse.Code > 0 ? sendGridResponse.Code : (int)HttpStatusCode.InternalServerError, sendGridResponse);
             }

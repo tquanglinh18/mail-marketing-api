@@ -6,6 +6,8 @@ namespace mail_marketing_api.Services
 	public interface IUploadBatchService
 	{
         Task<UploadBatch> CreateUploadBatchAsync(string batchName, string fileName, string uploadedBy);
+
+        Task<List<UploadBatch>> GetAllBatchesSummaryAsync();
     }
 }
 

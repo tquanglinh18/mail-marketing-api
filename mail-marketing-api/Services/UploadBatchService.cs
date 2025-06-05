@@ -35,5 +35,20 @@ namespace mail_marketing_api.Services
 
             return uploadBatch;
         }
+
+        public async Task<List<UploadBatch>> GetAllBatchesSummaryAsync()
+        {
+            return await _context.UploadBatches
+                                 .OrderByDescending(b => b.UploadDate)
+                                 .Select(b => new UploadBatch
+                                 {
+                                     BatchId = b.BatchId,
+                                     BatchName = b.BatchName,
+                                     UploadedFileName = b.UploadedFileName,
+                                     UploadDate = b.UploadDate,
+                                     UploadedBy = b.UploadedBy
+                                 })
+                                 .ToListAsync();
+        }
     }
 }

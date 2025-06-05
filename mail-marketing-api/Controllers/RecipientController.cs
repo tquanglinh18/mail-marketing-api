@@ -10,14 +10,14 @@ using OfficeOpenXml;
 [Route("[controller]/[action]")]
 public class RecipientController : ControllerBase
 {
-    private readonly IUploadBatchService _updateBatchService;
+    private readonly IUploadBatchService _uploadBatchService;
     private readonly IEmailRecipientService _emailRecipientService;
 
     public RecipientController(
-        IUploadBatchService updateBatchService,
+        IUploadBatchService uploadBatchService,
         IEmailRecipientService emailRecipientService)
     {
-        _updateBatchService = updateBatchService;
+        _uploadBatchService = uploadBatchService;
         _emailRecipientService = emailRecipientService;
     }
 
@@ -131,7 +131,7 @@ public class RecipientController : ControllerBase
 
         try
         {
-            uploadBatch = await _updateBatchService.CreateUploadBatchAsync(
+            uploadBatch = await _uploadBatchService.CreateUploadBatchAsync(
                 batchName,
                 file.FileName,
                 "Admin"
@@ -142,14 +142,18 @@ public class RecipientController : ControllerBase
             using (var package = new ExcelPackage(stream))
             {
                 var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                if (worksheet == null) {return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy Sheet nào!" }); }
+                if (worksheet == null) { return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy Sheet nào!" }); }
 
                 int rowCount = worksheet.Dimension.End.Row;
                 int colCount = worksheet.Dimension.End.Column;
                 var headers = new List<string>();
                 for (int col = 1; col <= colCount; col++) { headers.Add(worksheet.Cells[1, col].Value?.ToString()?.Trim().ToLower() ?? $"column{col}"); }
                 int emailCol = headers.IndexOf("email") + 1;
-                int nameCol = headers.IndexOf("name") + 1;
+                int nameCol = headers.IndexOf("họ và tên") + 1;
+                if (nameCol == 0)
+                {
+                    nameCol = headers.IndexOf("name") + 1;
+                }
                 if (emailCol == 0) { return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy cột Email!" }); }
 
                 for (int row = 2; row <= rowCount; row++)
@@ -208,6 +212,45 @@ public class RecipientController : ControllerBase
             {
                 Message = "Lỗi khi xử lý file Excel: " + ex.Message,
                 Data = uploadBatch
+            });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUploadBatchSummaries()
+    {
+        try
+        {
+            var batches = await _uploadBatchService.GetAllBatchesSummaryAsync();
+
+            if (batches == null || !batches.Any())
+            {
+                return Ok(new ResponseDTO<List<UploadBatch>>
+                {
+                    Code = 200,
+                    IsSuccessed = true,
+                    Message = "Không có lô tải lên nào được tìm thấy.",
+                    Data = new List<UploadBatch>()
+                });
+            }
+
+            return Ok(new ResponseDTO<List<UploadBatch>>
+            {
+                Code = 200,
+                IsSuccessed = true,
+                Message = "Lấy danh sách tóm tắt các lô tải lên thành công.",
+                Data = batches
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi lấy danh sách tóm tắt UploadBatch: {ex.ToString()}");
+            return StatusCode(500, new ResponseDTO<List<UploadBatch>>
+            {
+                Code = 500,
+                IsSuccessed = false,
+                Message = "Đã xảy ra lỗi máy chủ khi cố gắng lấy danh sách lô tải lên.",
+                Data = null
             });
         }
     }
