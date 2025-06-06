@@ -147,12 +147,12 @@ public class RecipientController : ControllerBase
                 int rowCount = worksheet.Dimension.End.Row;
                 int colCount = worksheet.Dimension.End.Column;
                 var headers = new List<string>();
-                for (int col = 1; col <= colCount; col++) { headers.Add(worksheet.Cells[1, col].Value?.ToString()?.Trim().ToLower() ?? $"column{col}"); }
-                int emailCol = headers.IndexOf("email") + 1;
-                int nameCol = headers.IndexOf("họ và tên") + 1;
+                for (int col = 1; col <= colCount; col++) { headers.Add(worksheet.Cells[1, col].Value?.ToString()?.Trim() ?? $"column{col}"); }
+                int emailCol = headers.IndexOf("Email") + 1;
+                int nameCol = headers.IndexOf("Họ và tên") + 1;
                 if (nameCol == 0)
                 {
-                    nameCol = headers.IndexOf("name") + 1;
+                    nameCol = headers.IndexOf("Name") + 1;
                 }
                 if (emailCol == 0) { return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy cột Email!" }); }
 
