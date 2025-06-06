@@ -217,7 +217,7 @@ public class RecipientController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetUploadBatchSummaries()
+    public async Task<IActionResult> GetAllBatch()
     {
         try
         {
