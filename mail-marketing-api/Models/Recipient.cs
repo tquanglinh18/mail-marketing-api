@@ -4,16 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace mail_marketing_api.Models
 {
-    [Table("EmailRecipients")]
-    public class EmailRecipient
+    [Table("Recipients")]
+    public class Recipient
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("RecipientId")]
         public int RecipientId { get; set; }
 
-        [Column("BatchId")]
-        public int BatchId { get; set; }
+        [Column("CampaignId")]
+        public int CampaignId { get; set; }
 
         [Column("RecipientName")]
         [StringLength(255)]
@@ -27,9 +27,9 @@ namespace mail_marketing_api.Models
         public string CustomDataJson { get; set; }
 
         // --- Navigation Property (Thuộc tính điều hướng) ---
-        // Dùng để liên kết tới bảng UploadBatches thông qua khóa ngoại BatchId
-        [ForeignKey("BatchId")]
-        public virtual UploadBatch UploadBatch { get; set; }
+        // Dùng để liên kết tới bảng Campaign thông qua khóa ngoại CampaignId
+        [ForeignKey("CampaignId")]
+        public virtual Campaign Campaign { get; set; }
     }
 }
 

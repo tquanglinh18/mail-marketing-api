@@ -5,43 +5,44 @@ using mail_marketing_api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using mail_marketing_api.Extensions;
 
 [ApiController]
 [Route("[controller]/[action]")]
 public class RecipientController : ControllerBase
 {
-    private readonly IUploadBatchService _uploadBatchService;
-    private readonly IEmailRecipientService _emailRecipientService;
+    private readonly ICampaignService _campaignService;
+    private readonly IRecipientService _recipientService;
 
     public RecipientController(
-        IUploadBatchService uploadBatchService,
-        IEmailRecipientService emailRecipientService)
+        ICampaignService CampaignService,
+        IRecipientService emailRecipientService)
     {
-        _uploadBatchService = uploadBatchService;
-        _emailRecipientService = emailRecipientService;
+        _campaignService = CampaignService;
+        _recipientService = emailRecipientService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllRecipients()
+    public async Task<IActionResult> GetAll()
     {
         try
         {
-            var recipients = await _emailRecipientService.GetAllRecipients();
+            var recipients = await _recipientService.GetAll();
 
-            return Ok(new ResponseDTO<List<EmailRecipient>>
+            return Ok(new ResponseDTO<List<RecipientDTO>>
             {
                 Code = 200,
-                Data = recipients,
+                Data = recipients.MapToDTO(),
                 Message = "Thành công!",
                 IsSuccessed = true
             });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ResponseDTO<List<EmailRecipient>>
+            return StatusCode(500, new ResponseDTO<List<Recipient>>
             {
                 Code = 500,
-                Data = new List<EmailRecipient>(),
+                Data = new List<Recipient>(),
                 Message = "Lỗi: " + ex.Message,
                 IsSuccessed = false
             });
@@ -49,28 +50,30 @@ public class RecipientController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetRecipientById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var rcipient = await _emailRecipientService.GetRecipientById(id);
-
-        if (rcipient == null)
+        try
         {
-            return NotFound(new ResponseDTO<EmailRecipient>
+            var recipient = await _recipientService.GetById(id);
+
+            return Ok(new ResponseDTO<RecipientDTO>
             {
-                Code = 404,
-                Data = null,
-                Message = "Không tìm thấy liên hệ!",
+                Code = 200,
+                Data = recipient.MapToDTO(),
+                Message = "Thành công!",
+                IsSuccessed = true
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ResponseDTO<Recipient>
+            {
+                Code = 500,
+                Data = new Recipient(),
+                Message = "Lỗi: " + ex.Message,
                 IsSuccessed = false
             });
         }
-
-        return Ok(new ResponseDTO<EmailRecipient>
-        {
-            Code = 200,
-            Data = rcipient,
-            Message = "Lấy liên hệ thành công!",
-            IsSuccessed = true
-        });
     }
 
     [HttpGet]
@@ -78,11 +81,11 @@ public class RecipientController : ControllerBase
     {
         try
         {
-            var results = await _emailRecipientService.SearchByKeyword(keyword);
+            var results = await _recipientService.SearchByKeyword(keyword);
 
             if (results.Any())
             {
-                return Ok(new ResponseDTO<List<EmailRecipient>>
+                return Ok(new ResponseDTO<List<Recipient>>
                 {
                     Code = 200,
                     Data = results,
@@ -101,10 +104,10 @@ public class RecipientController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ResponseDTO<List<EmailRecipient>>
+            return StatusCode(500, new ResponseDTO<List<Recipient>>
             {
                 Code = 500,
-                Data = new List<EmailRecipient>(),
+                Data = new List<Recipient>(),
                 Message = "Lỗi khi tìm kiếm: " + ex.Message,
                 IsSuccessed = false
             });
@@ -117,32 +120,32 @@ public class RecipientController : ControllerBase
     {
         if (file == null || file.Length == 0)
         {
-            return BadRequest(new ResponseDTO<UploadBatch> { Message = "File không hợp lệ." });
+            return BadRequest(new ResponseDTO<Campaign> { Message = "File không hợp lệ." });
         }
         if (string.IsNullOrWhiteSpace(batchName))
         {
-            return BadRequest(new ResponseDTO<UploadBatch> { Message = "Tên lô không được để trống." });
+            return BadRequest(new ResponseDTO<Campaign> { Message = "Tên lô không được để trống." });
         }
 
-        UploadBatch? uploadBatch = null;
-        var recipients = new List<EmailRecipient>();
+        Campaign? Campaign = null;
+        var recipients = new List<Recipient>();
         var errors = new List<string>();
         int processedCount = 0;
 
         try
         {
-            uploadBatch = await _uploadBatchService.CreateUploadBatchAsync(
-                batchName,
-                file.FileName,
-                "Admin"
-            );
+            //Campaign = await _campaignService.CreateUploadBatchAsync(
+            //    batchName,
+            //    file.FileName,
+            //    "Admin"
+            //);
 
-            // --- Đọc Excel =
+            // --- Đọc Excel ---
             using (var stream = file.OpenReadStream())
             using (var package = new ExcelPackage(stream))
             {
                 var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                if (worksheet == null) { return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy Sheet nào!" }); }
+                if (worksheet == null) { return BadRequest(new ResponseDTO<Campaign> { Message = "Không tìm thấy Sheet nào!" }); }
 
                 int rowCount = worksheet.Dimension.End.Row;
                 int colCount = worksheet.Dimension.End.Column;
@@ -154,7 +157,7 @@ public class RecipientController : ControllerBase
                 {
                     nameCol = headers.IndexOf("Name") + 1;
                 }
-                if (emailCol == 0) { return BadRequest(new ResponseDTO<UploadBatch> { Message = "Không tìm thấy cột Email!" }); }
+                if (emailCol == 0) { return BadRequest(new ResponseDTO<Campaign> { Message = "Không tìm thấy cột Email!" }); }
 
                 for (int row = 2; row <= rowCount; row++)
                 {
@@ -179,9 +182,9 @@ public class RecipientController : ControllerBase
                         }
                     }
 
-                    recipients.Add(new EmailRecipient
+                    recipients.Add(new Recipient
                     {
-                        BatchId = uploadBatch.BatchId,
+                        CampaignId = Campaign.CampaignId,
                         RecipientEmail = email,
                         RecipientName = name ?? "",
                         CustomDataJson = JsonSerializer.Serialize(customData)
@@ -191,7 +194,7 @@ public class RecipientController : ControllerBase
 
             if (recipients.Any())
             {
-                bool success = await _emailRecipientService.AddEmailRecipientsAsync(recipients);
+                bool success = await _recipientService.AddRecipientsAsync(recipients);
                 if (!success)
                 {
                     errors.Add("Lỗi khi lưu danh sách người nhận vào cơ sở dữ liệu.");
@@ -203,55 +206,46 @@ public class RecipientController : ControllerBase
                 Code = 200,
                 IsSuccessed = true,
                 Message = $"Xử lý hoàn tất. {recipients.Count}/{processedCount} liên hệ hợp lệ đã được thêm vào lô '{batchName}'. {errors.Count} lỗi.",
-                Data = new { BatchId = uploadBatch.BatchId, Errors = errors }
+                Data = new {
+                    //CampaignId = Campaign.CampaignId,
+                    Errors = errors }
             });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ResponseDTO<UploadBatch>
+            return StatusCode(500, new ResponseDTO<Campaign>
             {
                 Message = "Lỗi khi xử lý file Excel: " + ex.Message,
-                Data = uploadBatch
+                Data = Campaign
             });
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllBatch()
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetByCampaignId(int campaignId)
     {
         try
         {
-            var batches = await _uploadBatchService.GetAllBatchesSummaryAsync();
+            var recipients = await _recipientService.GetByCampaignIdAsync(campaignId);
 
-            if (batches == null || !batches.Any())
-            {
-                return Ok(new ResponseDTO<List<UploadBatch>>
-                {
-                    Code = 200,
-                    IsSuccessed = true,
-                    Message = "Không có lô tải lên nào được tìm thấy.",
-                    Data = new List<UploadBatch>()
-                });
-            }
-
-            return Ok(new ResponseDTO<List<UploadBatch>>
+            return Ok(new ResponseDTO<List<RecipientDTO>>
             {
                 Code = 200,
-                IsSuccessed = true,
-                Message = "Lấy danh sách tóm tắt các lô tải lên thành công.",
-                Data = batches
+                Data = recipients.MapToDTO(),
+                Message = "Thành công!",
+                IsSuccessed = true
             });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Lỗi khi lấy danh sách tóm tắt UploadBatch: {ex.ToString()}");
-            return StatusCode(500, new ResponseDTO<List<UploadBatch>>
+            return StatusCode(500, new ResponseDTO<Recipient>
             {
                 Code = 500,
-                IsSuccessed = false,
-                Message = "Đã xảy ra lỗi máy chủ khi cố gắng lấy danh sách lô tải lên.",
-                Data = null
+                Data = new Recipient(),
+                Message = "Lỗi: " + ex.Message,
+                IsSuccessed = false
             });
         }
     }
+
 }

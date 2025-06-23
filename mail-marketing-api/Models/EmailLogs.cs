@@ -27,10 +27,8 @@ namespace mail_marketing_api.Models
         [Column("ErrorMessage")]
         public string ErrorMessage { get; set; }
 
-
-
         [ForeignKey("RecipientId")]
-        public virtual EmailRecipient EmailRecipient { get; set; }
+        public virtual Recipient EmailRecipient { get; set; }
 
         [ForeignKey("TemplateId")]
         public virtual EmailTemplate EmailTemplate { get; set; }

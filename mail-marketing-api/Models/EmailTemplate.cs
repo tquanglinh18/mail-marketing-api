@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace mail_marketing_api.Models
 {
-    [Table("EmailTemplates")]
+    [Table("Templates")]
     public class EmailTemplate
 	{
         [Key]

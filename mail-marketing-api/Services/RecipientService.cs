@@ -7,39 +7,39 @@ using System.Threading.Tasks;
 
 namespace mail_marketing_api.Services
 {
-    public class EmailRecipientService : IEmailRecipientService
+    public class RecipientService : IRecipientService
     {
         private readonly AppDbContext _appDbContext;
 
-        public EmailRecipientService(AppDbContext appDbContext)
+        public RecipientService(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<EmailRecipient>> GetAllRecipients()
+        public async Task<List<Recipient>> GetAll()
         {
-            var lstContact = await _appDbContext.EmailRecipients.Include(recipient => recipient.UploadBatch).ToListAsync();
+            var lstContact = await _appDbContext.Recipients.ToListAsync();
             return lstContact;
         }
 
-        public async Task<EmailRecipient> GetRecipientById(int id)
+        public async Task<Recipient> GetById(int id)
         {
             var contact = await _appDbContext
-                .EmailRecipients.Include(recipient => recipient.UploadBatch).FirstOrDefaultAsync(c => c.RecipientId == id);
+                .Recipients.Include(r => r.Campaign).FirstOrDefaultAsync(c => c.RecipientId == id);
             if (contact == null) return null;
             return contact;
         }
 
-        public async Task<List<EmailRecipient>> SearchByKeyword(string keyword)
+        public async Task<List<Recipient>> SearchByKeyword(string keyword)
         {
-            var results = await _appDbContext.EmailRecipients
+            var results = await _appDbContext.Recipients
                 .Where(r => r.RecipientEmail.Contains(keyword) || r.RecipientName.Contains(keyword))
                 .ToListAsync();
 
             return results;
         }
 
-        public async Task<bool> AddEmailRecipientsAsync(List<EmailRecipient> recipients)
+        public async Task<bool> AddRecipientsAsync(List<Recipient> recipients)
         {
             if (recipients == null || !recipients.Any())
             {
@@ -48,7 +48,7 @@ namespace mail_marketing_api.Services
 
             try
             {
-                await _appDbContext.EmailRecipients.AddRangeAsync(recipients);
+                await _appDbContext.Recipients.AddRangeAsync(recipients);
                 int savedCount = await _appDbContext.SaveChangesAsync();
                 return savedCount > 0;
             }
@@ -58,10 +58,10 @@ namespace mail_marketing_api.Services
             }
         }
 
-        public async Task<List<EmailRecipient>> GetRecipientsByBatchIdAsync(int batchId)
+        public async Task<List<Recipient>> GetByCampaignIdAsync(int campaignId)
         {
-            return await _appDbContext.EmailRecipients
-                                 .Where(r => r.BatchId == batchId)
+            return await _appDbContext.Recipients
+                                 .Where(r => r.CampaignId == campaignId)
                                  .ToListAsync();
         }
     }

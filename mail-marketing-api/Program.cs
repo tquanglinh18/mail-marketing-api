@@ -25,6 +25,7 @@ if (string.IsNullOrEmpty(connectionString))
 {
     throw new InvalidOperationException("Connection string 'SqlServerInfo' not found.");
 }
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -38,10 +39,8 @@ builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddScoped<IS3Service, S3Service>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
-builder.Services.AddScoped<IUploadBatchService, UploadBatchService>();
-builder.Services.AddScoped<IEmailRecipientService, EmailRecipientService>();
-builder.Services.AddScoped<ISendGridService, SendGridService>();
-builder.Services.AddScoped<IMailgunService, MailgunService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
+builder.Services.AddScoped<IRecipientService, RecipientService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

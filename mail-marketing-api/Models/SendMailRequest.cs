@@ -8,7 +8,7 @@ namespace mail_marketing_api.Models
     {
         public int TemplateId { get; set; }
 
-        public int UploadBatchId { get; set; }
+        public int CampaignId { get; set; }
 
         public string? CustomSubject { get; set; }
 

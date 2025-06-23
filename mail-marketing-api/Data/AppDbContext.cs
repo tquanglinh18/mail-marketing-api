@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace mail_marketing_api.Data
 {
-	public class AppDbContext : DbContext	{
+    public class AppDbContext : DbContext
+    {
         // <= ĐÃ THAY ĐỔI TÊN CONSTRUCTOR
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -12,125 +13,127 @@ namespace mail_marketing_api.Data
         }
 
         public DbSet<EmailLogs> EmailLogs { get; set; }
-        public DbSet<EmailRecipient> EmailRecipients { get; set; }
-        public DbSet<EmailTemplate> EmailTemplates { get; set; }
-        public DbSet<UploadBatch> UploadBatches { get; set; }
+        public DbSet<Recipient> Recipients { get; set; }
+        public DbSet<EmailTemplate> Templates { get; set; }
+        public DbSet<Campaign> Campaigns { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<EmailLogs>()
+                  .HasOne(e => e.EmailRecipient)
+                  .WithMany()
+                  .HasForeignKey(e => e.RecipientId)
+                  .OnDelete(DeleteBehavior.Cascade); // Cho phép xoá người nhận thì xoá log
+
+            modelBuilder.Entity<EmailLogs>()
+                .HasOne(e => e.EmailTemplate)
+                .WithMany()
+                .HasForeignKey(e => e.TemplateId)
+                .OnDelete(DeleteBehavior.Restrict); // KHÔNG cho xoá template nếu có log
+
             // --- DỮ LIỆU MỒI CHI TIẾT ---
 
-            // 1. Thêm Email Templates
+            // 1. Mẫu Email (Templates)
             modelBuilder.Entity<EmailTemplate>().HasData(
                 new EmailTemplate
                 {
                     TemplateId = 1,
-                    TemplateName = "Mẫu Chào Mừng Thành Viên Mới",
-                    HtmlContent = "<h1>Chào mừng -TenNguoiNhan-!</h1><p>Cảm ơn bạn đã đăng ký dịch vụ của chúng tôi.</p>",
+                    TemplateName = "Chào mừng thành viên mới",
+                    HtmlContent = "<h1>Xin chào -TenNguoiNhan-!</h1><p>Chúng tôi rất vui khi có bạn đồng hành.</p>",
                     ImageStorageType = "None",
-                    CreatedDate = new DateTime(2025, 5, 20, 10, 0, 0, DateTimeKind.Utc),
+                    CreatedDate = new DateTime(2025, 6, 1, 8, 0, 0, DateTimeKind.Utc),
                     CreatedBy = "Admin"
                 },
                 new EmailTemplate
                 {
                     TemplateId = 2,
-                    TemplateName = "Mẫu Tin Tức Tháng 5",
-                    HtmlContent = "<h1>Kính gửi -TenNguoiNhan-,</h1><p>Cảm ơn bạn đã là một thành viên <b>-MembershipLevel-</b> tại thành phố <b>-ThanhPho-</b>!</p><p>Chúng tôi vui mừng thông báo chương trình khuyến mãi <b>-CampaignName-</b>.Hãy sử dụng mã <b>-DiscountCode-</b> để nhận ưu đãi đặc biệt.</p><p>Ưu đãi này chỉ dành riêng cho bạn tại địa chỉ email: -Email-.</p><p>Trân trọng,<br>\nĐội ngũ Marketing</p></p>",
+                    TemplateName = "Thông báo khuyến mãi đặc biệt",
+                    HtmlContent = "<p>Thân gửi -TenNguoiNhan-,</p><p>Mời bạn tham gia chương trình -CampaignName- và nhận ưu đãi tại -Email-.</p>",
                     ImageStorageType = "None",
-                    CreatedDate = new DateTime(2025, 5, 21, 11, 0, 0, DateTimeKind.Utc),
+                    CreatedDate = new DateTime(2025, 6, 2, 10, 30, 0, DateTimeKind.Utc),
                     CreatedBy = "MarketingTeam"
                 }
             );
 
-            // 2. Thêm Upload Batches (Các lô Upload)
-            modelBuilder.Entity<UploadBatch>().HasData(
-                new UploadBatch
+            // 2. Chiến dịch (Campaigns)
+            modelBuilder.Entity<Campaign>().HasData(
+                new Campaign
                 {
-                    BatchId = 1, // Lô 1
-                    BatchName = "Khách hàng đăng ký T4/2025",
-                    UploadedFileName = "customers_apr2025.csv",
-                    UploadDate = new DateTime(2025, 5, 1, 9, 30, 0, DateTimeKind.Utc),
-                    UploadedBy = "Sales"
+                    CampaignId = 1,
+                    CampaignName = "Chiến dịch Chào Hè 2025",
+                    TemplateId = 1,
+                    UploadedFileName = "he2025.xlsx",
+                    UploadedFileUrl = "/uploads/he2025.xlsx",
+                    CreateDate = new DateTime(2025, 6, 5, 9, 0, 0, DateTimeKind.Utc),
+                    CreateBy = "linhtq",
+                    StartDate = new DateTime(2025, 6, 10),
+                    EndDate = new DateTime(2025, 6, 20)
                 },
-                new UploadBatch
+                new Campaign
                 {
-                    BatchId = 2, // Lô 2
-                    BatchName = "Người tham dự Workshop Marketing",
-                    UploadedFileName = "workshop_attendees.xlsx",
-                    UploadDate = new DateTime(2025, 5, 15, 14, 0, 0, DateTimeKind.Utc),
-                    UploadedBy = "Events"
+                    CampaignId = 2,
+                    CampaignName = "Khuyến mãi VIP tháng 6",
+                    TemplateId = 2,
+                    UploadedFileName = "vip_june.csv",
+                    UploadedFileUrl = "/uploads/vip_june.csv",
+                    CreateDate = new DateTime(2025, 6, 8, 14, 0, 0, DateTimeKind.Utc),
+                    CreateBy = "marketing_user",
+                    StartDate = new DateTime(2025, 6, 12),
+                    EndDate = new DateTime(2025, 6, 25)
                 }
             );
 
-            // 3. Thêm Email Recipients (Người nhận, liên kết với Batches)
-            modelBuilder.Entity<EmailRecipient>().HasData(
-                new EmailRecipient // Người nhận 1 (thuộc Lô 1)
+            // 3. Người nhận (Recipients)
+            modelBuilder.Entity<Recipient>().HasData(
+                new Recipient
                 {
                     RecipientId = 1,
-                    BatchId = 1, // <-- Liên kết Lô 1
-                    RecipientName = "Nguyễn Văn Linh",
-                    RecipientEmail = "linhtq.vtco@gmail.com",
-                    CustomDataJson = "{ \"TenNguoiNhan\": \"Văn Linh\", \"city\": \"Hanoi\" }"
+                    CampaignId = 1,
+                    RecipientName = "Lê Văn A",
+                    RecipientEmail = "levana@example.com",
+                    CustomDataJson = "{ \"TenNguoiNhan\": \"Văn A\", \"ThanhPho\": \"Hà Nội\" }"
                 },
-                new EmailRecipient // Người nhận 2 (thuộc Lô 1)
+                new Recipient
                 {
                     RecipientId = 2,
-                    BatchId = 1, // <-- Liên kết Lô 1
-                    RecipientName = "Trần Thị Linh",
-                    RecipientEmail = "tquanglinh18@gmail.com",
-                    CustomDataJson = "{ \"TenNguoiNhan\": \"Thị Linh\", \"city\": \"HCM\" }"
+                    CampaignId = 1,
+                    RecipientName = "Nguyễn Thị B",
+                    RecipientEmail = "nguyenthib@example.com",
+                    CustomDataJson = "{ \"TenNguoiNhan\": \"Thị B\", \"ThanhPho\": \"Đà Nẵng\" }"
                 },
-                new EmailRecipient // Người nhận 3 (thuộc Lô 2)
+                new Recipient
                 {
                     RecipientId = 3,
-                    BatchId = 2, // <-- Liên kết Lô 2
-                    RecipientName = "Lê Văn C",
-                    RecipientEmail = "levanc@example.com",
-                    CustomDataJson = "{ \"TenNguoiNhan\": \"Văn C\", \"company\": \"ABC Corp\" }"
-                },
-                 new EmailRecipient // Người nhận 4 (thuộc Lô 2)
-                 {
-                     RecipientId = 4,
-                     BatchId = 2, // <-- Liên kết Lô 2
-                     RecipientName = "Phạm Thị D",
-                     RecipientEmail = "phamthid@example.com",
-                     CustomDataJson = "{ \"TenNguoiNhan\": \"Thị D\", \"company\": \"XYZ Ltd\" }"
-                 }
+                    CampaignId = 2,
+                    RecipientName = "Phạm Văn C",
+                    RecipientEmail = "phamvanc@example.com",
+                    CustomDataJson = "{ \"TenNguoiNhan\": \"Văn C\", \"MembershipLevel\": \"Gold\", \"Email\": \"phamvanc@example.com\" }"
+                }
             );
 
-            // 4. Thêm Email Logs (Lịch sử gửi, liên kết Người nhận và Mẫu)
+            // 4. Lịch sử gửi (EmailLogs)
             modelBuilder.Entity<EmailLogs>().HasData(
-                new EmailLogs // Log 1: Gửi thành công cho người 1, mẫu 1
+                new EmailLogs
                 {
                     LogId = 1,
-                    RecipientId = 1, // <-- Liên kết Người nhận 1
-                    TemplateId = 1,  // <-- Liên kết Mẫu 1
-                    SentDate = new DateTime(2025, 5, 22, 9, 0, 0, DateTimeKind.Utc),
-                    IsSuccess = true,
-                    ErrorMessage = "" // Rỗng vì thành công
-                },
-                new EmailLogs // Log 2: Gửi thành công cho người 3, mẫu 2
-                {
-                    LogId = 2,
-                    RecipientId = 3, // <-- Liên kết Người nhận 3
-                    TemplateId = 2,  // <-- Liên kết Mẫu 2
-                    SentDate = new DateTime(2025, 5, 23, 10, 0, 0, DateTimeKind.Utc),
+                    RecipientId = 1,
+                    TemplateId = 1,
+                    SentDate = new DateTime(2025, 6, 10, 9, 0, 0, DateTimeKind.Utc),
                     IsSuccess = true,
                     ErrorMessage = ""
                 },
-                new EmailLogs // Log 3: Gửi thất bại cho người 4, mẫu 2
+                new EmailLogs
                 {
-                    LogId = 3,
-                    RecipientId = 4, // <-- Liên kết Người nhận 4
-                    TemplateId = 2,  // <-- Liên kết Mẫu 2
-                    SentDate = new DateTime(2025, 5, 23, 10, 5, 0, DateTimeKind.Utc),
+                    LogId = 2,
+                    RecipientId = 3,
+                    TemplateId = 2,
+                    SentDate = new DateTime(2025, 6, 13, 8, 30, 0, DateTimeKind.Utc),
                     IsSuccess = false,
-                    ErrorMessage = "Email address does not exist." // Lý do thất bại
+                    ErrorMessage = "SMTP connection timeout."
                 }
             );
-
             // --- KẾT THÚC DỮ LIỆU MỒI ---
         }
     }

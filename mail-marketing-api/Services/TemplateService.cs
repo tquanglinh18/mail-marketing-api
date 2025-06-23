@@ -13,37 +13,53 @@ namespace mail_marketing_api.Services
             _appDbContext = appDbContext;
         }
 
-        public EmailTemplate CreateTemplate(EmailTemplate emailTemplate)
-        {
-            _appDbContext.EmailTemplates.Add(emailTemplate);
-            _appDbContext.SaveChanges();
-            return emailTemplate;
-        }
-
-        public async Task<EmailTemplate> DeleteTemplate(int id)
-        {
-            var temp = await _appDbContext.EmailTemplates.FirstOrDefaultAsync(t => t.TemplateId == id);
-            if (temp == null) return null;
-
-            _appDbContext.EmailTemplates.Remove(temp);
-            _appDbContext.SaveChanges();
-            return temp;
-        }
-
         public async Task<List<EmailTemplate>> GetAllTemplates()
         {
-            var templates = await _appDbContext.EmailTemplates.ToListAsync();
+            var templates = await _appDbContext.Templates.ToListAsync();
             if (templates == null) return null;
             return templates;
         }
 
         public async Task<EmailTemplate> GetTeamplateById(int id)
         {
-            var template = await _appDbContext.EmailTemplates.FirstOrDefaultAsync(t => t.TemplateId == id);
+            var template = await _appDbContext.Templates.FirstOrDefaultAsync(t => t.TemplateId == id);
             if (template == null) return null;
             return template;
         }
 
+        public EmailTemplate CreateTemplate(EmailTemplate emailTemplate)
+        {
+            _appDbContext.Templates.Add(emailTemplate);
+            _appDbContext.SaveChanges();
+            return emailTemplate;
+        }
+
+        public async Task<EmailTemplate?> UpdateTemplate(int id, EmailTemplate updatedTemplate)
+        {
+            var existingTemplate = await _appDbContext.Templates.FirstOrDefaultAsync(t => t.TemplateId == id);
+            if (existingTemplate == null)
+                return null;
+
+            // Cập nhật dữ liệu
+            existingTemplate.TemplateName = updatedTemplate.TemplateName;
+            existingTemplate.HtmlContent = updatedTemplate.HtmlContent;
+            existingTemplate.ImageStorageType = updatedTemplate.ImageStorageType;
+            existingTemplate.CreatedDate = updatedTemplate.CreatedDate;
+            existingTemplate.CreatedBy = updatedTemplate.CreatedBy;
+
+            await _appDbContext.SaveChangesAsync();
+            return existingTemplate;
+        }
+
+        public async Task<EmailTemplate> DeleteTemplate(int id)
+        {
+            var temp = await _appDbContext.Templates.FirstOrDefaultAsync(t => t.TemplateId == id);
+            if (temp == null) return null;
+
+            _appDbContext.Templates.Remove(temp);
+            _appDbContext.SaveChanges();
+            return temp;
+        }
     }
 }
 

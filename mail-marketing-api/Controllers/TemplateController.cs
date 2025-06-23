@@ -78,6 +78,43 @@ public class TemplateController : ControllerBase
         });
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTemplate(int id, [FromBody] EmailTemplate updatedTemplate)
+    {
+        try
+        {
+            var result = await _templateService.UpdateTemplate(id, updatedTemplate);
+            if (result == null)
+            {
+                return NotFound(new ResponseDTO<string>
+                {
+                    Code = 404,
+                    Data = null,
+                    Message = "Không tìm thấy template cần cập nhật.",
+                    IsSuccessed = false
+                });
+            }
+
+            return Ok(new ResponseDTO<EmailTemplate>
+            {
+                Code = 200,
+                Data = result,
+                Message = "Cập nhật template thành công!",
+                IsSuccessed = true
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ResponseDTO<string>
+            {
+                Code = 500,
+                Data = null,
+                Message = $"Lỗi hệ thống: {ex.Message}",
+                IsSuccessed = false
+            });
+        }
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTemplate(int id)
     {
