@@ -30,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 var dbChecker = new CheckConnectDb(configuration);
+
 dbChecker.TestConnection();
 
 builder.Services.AddControllers();

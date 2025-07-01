@@ -103,51 +103,6 @@ namespace mail_marketing_api.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Templates",
-                columns: new[] { "TemplateId", "CreatedBy", "CreatedDate", "HtmlContent", "ImageStorageType", "TemplateName" },
-                values: new object[] { 1, "Admin", new DateTime(2025, 6, 1, 8, 0, 0, 0, DateTimeKind.Utc), "<h1>Xin chào -TenNguoiNhan-!</h1><p>Chúng tôi rất vui khi có bạn đồng hành.</p>", "None", "Chào mừng thành viên mới" });
-
-            migrationBuilder.InsertData(
-                table: "Templates",
-                columns: new[] { "TemplateId", "CreatedBy", "CreatedDate", "HtmlContent", "ImageStorageType", "TemplateName" },
-                values: new object[] { 2, "MarketingTeam", new DateTime(2025, 6, 2, 10, 30, 0, 0, DateTimeKind.Utc), "<p>Thân gửi -TenNguoiNhan-,</p><p>Mời bạn tham gia chương trình -CampaignName- và nhận ưu đãi tại -Email-.</p>", "None", "Thông báo khuyến mãi đặc biệt" });
-
-            migrationBuilder.InsertData(
-                table: "Campaigns",
-                columns: new[] { "CampaignId", "CampaignName", "CreateBy", "CreateDate", "EndDate", "StartDate", "TemplateId", "UploadedFileName", "UploadedFileUrl" },
-                values: new object[] { 1, "Chiến dịch Chào Hè 2025", "linhtq", new DateTime(2025, 6, 5, 9, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "he2025.xlsx", "/uploads/he2025.xlsx" });
-
-            migrationBuilder.InsertData(
-                table: "Campaigns",
-                columns: new[] { "CampaignId", "CampaignName", "CreateBy", "CreateDate", "EndDate", "StartDate", "TemplateId", "UploadedFileName", "UploadedFileUrl" },
-                values: new object[] { 2, "Khuyến mãi VIP tháng 6", "marketing_user", new DateTime(2025, 6, 8, 14, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, "vip_june.csv", "/uploads/vip_june.csv" });
-
-            migrationBuilder.InsertData(
-                table: "Recipients",
-                columns: new[] { "RecipientId", "CampaignId", "CustomDataJson", "RecipientEmail", "RecipientName" },
-                values: new object[] { 1, 1, "{ \"TenNguoiNhan\": \"Văn A\", \"ThanhPho\": \"Hà Nội\" }", "levana@example.com", "Lê Văn A" });
-
-            migrationBuilder.InsertData(
-                table: "Recipients",
-                columns: new[] { "RecipientId", "CampaignId", "CustomDataJson", "RecipientEmail", "RecipientName" },
-                values: new object[] { 2, 1, "{ \"TenNguoiNhan\": \"Thị B\", \"ThanhPho\": \"Đà Nẵng\" }", "nguyenthib@example.com", "Nguyễn Thị B" });
-
-            migrationBuilder.InsertData(
-                table: "Recipients",
-                columns: new[] { "RecipientId", "CampaignId", "CustomDataJson", "RecipientEmail", "RecipientName" },
-                values: new object[] { 3, 2, "{ \"TenNguoiNhan\": \"Văn C\", \"MembershipLevel\": \"Gold\", \"Email\": \"phamvanc@example.com\" }", "phamvanc@example.com", "Phạm Văn C" });
-
-            migrationBuilder.InsertData(
-                table: "EmailLogs",
-                columns: new[] { "LogId", "ErrorMessage", "IsSuccess", "RecipientId", "SentDate", "TemplateId" },
-                values: new object[] { 1, "", true, 1, new DateTime(2025, 6, 10, 9, 0, 0, 0, DateTimeKind.Utc), 1 });
-
-            migrationBuilder.InsertData(
-                table: "EmailLogs",
-                columns: new[] { "LogId", "ErrorMessage", "IsSuccess", "RecipientId", "SentDate", "TemplateId" },
-                values: new object[] { 2, "SMTP connection timeout.", false, 3, new DateTime(2025, 6, 13, 8, 30, 0, 0, DateTimeKind.Utc), 2 });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Campaigns_TemplateId",
                 table: "Campaigns",

@@ -12,7 +12,7 @@ using mail_marketing_api.Data;
 namespace mail_marketing_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250623034418_AddDetailedSeedData")]
+    [Migration("20250630043204_AddDetailedSeedData")]
     partial class AddDetailedSeedData
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,32 +77,6 @@ namespace mail_marketing_api.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("Campaigns");
-
-                    b.HasData(
-                        new
-                        {
-                            CampaignId = 1,
-                            CampaignName = "Chiến dịch Chào Hè 2025",
-                            CreateBy = "linhtq",
-                            CreateDate = new DateTime(2025, 6, 5, 9, 0, 0, 0, DateTimeKind.Utc),
-                            EndDate = new DateTime(2025, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartDate = new DateTime(2025, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TemplateId = 1,
-                            UploadedFileName = "he2025.xlsx",
-                            UploadedFileUrl = "/uploads/he2025.xlsx"
-                        },
-                        new
-                        {
-                            CampaignId = 2,
-                            CampaignName = "Khuyến mãi VIP tháng 6",
-                            CreateBy = "marketing_user",
-                            CreateDate = new DateTime(2025, 6, 8, 14, 0, 0, 0, DateTimeKind.Utc),
-                            EndDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartDate = new DateTime(2025, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TemplateId = 2,
-                            UploadedFileName = "vip_june.csv",
-                            UploadedFileUrl = "/uploads/vip_june.csv"
-                        });
                 });
 
             modelBuilder.Entity("mail_marketing_api.Models.EmailLogs", b =>
@@ -142,26 +116,6 @@ namespace mail_marketing_api.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("EmailLogs");
-
-                    b.HasData(
-                        new
-                        {
-                            LogId = 1,
-                            ErrorMessage = "",
-                            IsSuccess = true,
-                            RecipientId = 1,
-                            SentDate = new DateTime(2025, 6, 10, 9, 0, 0, 0, DateTimeKind.Utc),
-                            TemplateId = 1
-                        },
-                        new
-                        {
-                            LogId = 2,
-                            ErrorMessage = "SMTP connection timeout.",
-                            IsSuccess = false,
-                            RecipientId = 3,
-                            SentDate = new DateTime(2025, 6, 13, 8, 30, 0, 0, DateTimeKind.Utc),
-                            TemplateId = 2
-                        });
                 });
 
             modelBuilder.Entity("mail_marketing_api.Models.EmailTemplate", b =>
@@ -203,26 +157,6 @@ namespace mail_marketing_api.Migrations
                     b.HasKey("TemplateId");
 
                     b.ToTable("Templates");
-
-                    b.HasData(
-                        new
-                        {
-                            TemplateId = 1,
-                            CreatedBy = "Admin",
-                            CreatedDate = new DateTime(2025, 6, 1, 8, 0, 0, 0, DateTimeKind.Utc),
-                            HtmlContent = "<h1>Xin chào -TenNguoiNhan-!</h1><p>Chúng tôi rất vui khi có bạn đồng hành.</p>",
-                            ImageStorageType = "None",
-                            TemplateName = "Chào mừng thành viên mới"
-                        },
-                        new
-                        {
-                            TemplateId = 2,
-                            CreatedBy = "MarketingTeam",
-                            CreatedDate = new DateTime(2025, 6, 2, 10, 30, 0, 0, DateTimeKind.Utc),
-                            HtmlContent = "<p>Thân gửi -TenNguoiNhan-,</p><p>Mời bạn tham gia chương trình -CampaignName- và nhận ưu đãi tại -Email-.</p>",
-                            ImageStorageType = "None",
-                            TemplateName = "Thông báo khuyến mãi đặc biệt"
-                        });
                 });
 
             modelBuilder.Entity("mail_marketing_api.Models.Recipient", b =>
@@ -260,32 +194,6 @@ namespace mail_marketing_api.Migrations
                     b.HasIndex("CampaignId");
 
                     b.ToTable("Recipients");
-
-                    b.HasData(
-                        new
-                        {
-                            RecipientId = 1,
-                            CampaignId = 1,
-                            CustomDataJson = "{ \"TenNguoiNhan\": \"Văn A\", \"ThanhPho\": \"Hà Nội\" }",
-                            RecipientEmail = "levana@example.com",
-                            RecipientName = "Lê Văn A"
-                        },
-                        new
-                        {
-                            RecipientId = 2,
-                            CampaignId = 1,
-                            CustomDataJson = "{ \"TenNguoiNhan\": \"Thị B\", \"ThanhPho\": \"Đà Nẵng\" }",
-                            RecipientEmail = "nguyenthib@example.com",
-                            RecipientName = "Nguyễn Thị B"
-                        },
-                        new
-                        {
-                            RecipientId = 3,
-                            CampaignId = 2,
-                            CustomDataJson = "{ \"TenNguoiNhan\": \"Văn C\", \"MembershipLevel\": \"Gold\", \"Email\": \"phamvanc@example.com\" }",
-                            RecipientEmail = "phamvanc@example.com",
-                            RecipientName = "Phạm Văn C"
-                        });
                 });
 
             modelBuilder.Entity("mail_marketing_api.Models.Campaign", b =>

@@ -116,17 +116,12 @@ public class RecipientController : ControllerBase
 
     [HttpPost]
     [RequestSizeLimit(100_000_000)]
-    public async Task<IActionResult> UploadRecipientsFromExcel(IFormFile file, [FromForm] string batchName)
+    public async Task<IActionResult> UploadRecipientsFromExcel(IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
             return BadRequest(new ResponseDTO<Campaign> { Message = "File không hợp lệ." });
         }
-        if (string.IsNullOrWhiteSpace(batchName))
-        {
-            return BadRequest(new ResponseDTO<Campaign> { Message = "Tên lô không được để trống." });
-        }
-
         Campaign? Campaign = null;
         var recipients = new List<Recipient>();
         var errors = new List<string>();
@@ -134,12 +129,6 @@ public class RecipientController : ControllerBase
 
         try
         {
-            //Campaign = await _campaignService.CreateUploadBatchAsync(
-            //    batchName,
-            //    file.FileName,
-            //    "Admin"
-            //);
-
             // --- Đọc Excel ---
             using (var stream = file.OpenReadStream())
             using (var package = new ExcelPackage(stream))
@@ -205,7 +194,7 @@ public class RecipientController : ControllerBase
             {
                 Code = 200,
                 IsSuccessed = true,
-                Message = $"Xử lý hoàn tất. {recipients.Count}/{processedCount} liên hệ hợp lệ đã được thêm vào lô '{batchName}'. {errors.Count} lỗi.",
+                Message = $"Xử lý hoàn tất. {recipients.Count}/{processedCount} liên hệ hợp lệ đã được thêm vào. {errors.Count} lỗi.",
                 Data = new {
                     //CampaignId = Campaign.CampaignId,
                     Errors = errors }
@@ -222,11 +211,11 @@ public class RecipientController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetByCampaignId(int campaignId)
+    public async Task<IActionResult> GetByCampaignId(int id)
     {
         try
         {
-            var recipients = await _recipientService.GetByCampaignIdAsync(campaignId);
+            var recipients = await _recipientService.GetByCampaignIdAsync(id);
 
             return Ok(new ResponseDTO<List<RecipientDTO>>
             {
