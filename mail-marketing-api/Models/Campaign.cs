@@ -42,8 +42,8 @@ namespace mail_marketing_api.Models
         [Column("EndDate")]
         public DateTime EndDate { get; set; }
 
-        [Column("Recipients")]
-        public List<Recipient> Recipients { get; set; }
+        //[Column("Recipients")]
+        //public List<Recipient>? Recipients { get; set; }
     }
 }
 

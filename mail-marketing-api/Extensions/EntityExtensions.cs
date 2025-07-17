@@ -61,7 +61,7 @@ namespace mail_marketing_api.Extensions
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 Template = entity.Template?.MapToDTO(),
-                Recipients = entity.Recipients?.Select(r => r.MapToDTO()).ToList()
+                //Recipients = entity.Recipients?.Select(r => r.MapToDTO()).ToList()
             };
         }
 
