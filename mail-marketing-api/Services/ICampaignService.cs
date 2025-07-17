@@ -9,7 +9,7 @@ namespace mail_marketing_api.Services
 
         Task<Campaign?> GetByIdAsync(int id);
 
-        Task<Campaign> CreateCampaignAsync(Campaign campaign);
+        Task<ResponseDTO<Campaign>> CreateCampaignAsync(Campaign campaign);
 
         Task<Campaign> UpdateCampaignAsync(int id, Campaign campaign);
 

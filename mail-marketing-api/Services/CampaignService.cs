@@ -15,19 +15,75 @@ namespace mail_marketing_api.Services
             _context = context;
         }
 
-        public async Task<Campaign> CreateCampaignAsync(Campaign campaign)
+        public async Task<ResponseDTO<Campaign>> CreateCampaignAsync(Campaign campaign)
         {
-            if (string.IsNullOrWhiteSpace(campaign.CampaignName))
-                throw new ArgumentNullException(nameof(campaign.CampaignName));
-            if (string.IsNullOrWhiteSpace(campaign.UploadedFileName))
-                throw new ArgumentNullException(nameof(campaign.UploadedFileName));
+            var response = new ResponseDTO<Campaign>();
 
+            try
+            {
+                // Kiểm tra tên chiến dịch
+                if (string.IsNullOrWhiteSpace(campaign.CampaignName))
+                {
+                    response.Code = 400;
+                    response.Message = "Tên chiến dịch không được để trống.";
+                    return response;
+                }
 
-            _context.Campaigns.Add(campaign);
-            await _context.SaveChangesAsync();
+                // Kiểm tra tên file
+                if (string.IsNullOrWhiteSpace(campaign.UploadedFileName))
+                {
+                    response.Code = 400;
+                    response.Message = "Tên file upload không được để trống.";
+                    return response;
+                }
 
-            return campaign;
+                // Kiểm tra TemplateId
+                if (campaign.TemplateId <= 0)
+                {
+                    response.Code = 400;
+                    response.Message = "Bạn phải chọn một mẫu email hợp lệ.";
+                    return response;
+                }
+
+                // Kiểm tra Template có tồn tại không
+                var template = await _context.Templates
+                    .FirstOrDefaultAsync(t => t.TemplateId == campaign.TemplateId);
+
+                if (template == null)
+                {
+                    response.Code = 404;
+                    response.Message = $"Không tìm thấy template với ID = {campaign.TemplateId}.";
+                    return response;
+                }
+
+                // Gán navigation property
+                campaign.Template = template;
+                campaign.CreateDate = DateTime.UtcNow;
+
+                _context.Campaigns.Add(campaign);
+                await _context.SaveChangesAsync();
+
+                // Load lại để trả về campaign có đầy đủ Template
+                var createdCampaign = await _context.Campaigns
+                    .Include(c => c.Template)
+                    .FirstOrDefaultAsync(c => c.CampaignId == campaign.CampaignId);
+
+                // Thành công
+                response.Code = 200;
+                response.IsSuccessed = true;
+                response.Message = "Tạo chiến dịch thành công.";
+                response.Data = createdCampaign;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Code = 500;
+                response.Message = $"Lỗi hệ thống: {ex.Message}";
+                response.IsSuccessed = false;
+                return response;
+            }
         }
+
 
         public async Task<Campaign> UpdateCampaignAsync(int id, Campaign updatedCampaign)
         {

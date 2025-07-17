@@ -94,23 +94,7 @@ namespace mail_marketing_api.Controllers
             {
                 var result = await _campaignService.CreateCampaignAsync(campaign);
 
-                return Ok(new ResponseDTO<Campaign>
-                {
-                    Code = 201,
-                    Data = result,
-                    Message = "Tạo chiến dịch thành công!",
-                    IsSuccessed = true
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(new ResponseDTO<string>
-                {
-                    Code = 400,
-                    Data = null,
-                    Message = $"Dữ liệu thiếu: {ex.ParamName}",
-                    IsSuccessed = false
-                });
+                return Ok(result);
             }
             catch (Exception ex)
             {
